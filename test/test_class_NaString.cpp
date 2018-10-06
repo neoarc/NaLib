@@ -7,8 +7,24 @@ using namespace std;
 
 TEST_CASE("NaString.NaString(const wchar_t *)")
 {
-	const wstring s = L"test1: simple constructor\n";
+	const wstring s = L"0123456789";
 	NaString ns(s.c_str());
+
+	// Len = 10
+	// BufLen = 22
+
+	CHECK(ns == s.c_str());
+}
+
+TEST_CASE("NaString.NaString(const char *)")
+{
+	const string s = "0123456789";
+	NaString ns(s.c_str());
+
+	// Must Be:
+	// Len = 10
+	// BufLen = 22
+
 	CHECK(ns == s.c_str());
 }
 
@@ -151,8 +167,23 @@ TEST_CASE("NaString.Mid")
 	CHECK(ns.Mid(4) ==    L"o,World");
 	CHECK(ns.Mid(7) ==       L"orld");
 
+	ns = L"Neoarc's Mario Map v1.2";
+	CHECK(ns.Mid(20) == L"1.2");
+
 	// Invalid argument
 	CHECK(ns.Mid(-5) == ns);  // act as CString.Mid
+}
+
+TEST_CASE("NaString.Mid.Test181006")
+{
+	for (int i = 0; i < 1000000; i++)
+	{
+		std::string str = []() -> std::string{
+			return std::string("Neoarc's Mario Map v1.2", 23);
+		}();
+		NaString ns = str.c_str();
+		CHECK(ns.Mid(20) == L"1.2");
+	}
 }
 
 TEST_CASE("NaString.Right")
@@ -167,6 +198,15 @@ TEST_CASE("NaString.Right")
 
 	// Invalid argument
 	CHECK(ns.Right(-5) == L"");  // act as CString.Right
+}
+
+TEST_CASE("NaString.Split")
+{
+	NaString ns(L"Hello,World");
+	auto ar = ns.Split(L",");
+	
+	ns = "98 0 118 32 11 30 0 -18";
+	auto ar2 = ns.Split(L" ");
 }
 
 TEST_CASE("NaString.Trim")
