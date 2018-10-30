@@ -14,7 +14,7 @@ TEST_CASE("NaCurl.Post")
 	CHECK(strLeft == L"<!doctype html>");
 }
 
-TEST_CASE("NaCurl.Get", "[.]")
+TEST_CASE("NaCurl.Get")
 {
 	NaCurl curl;
 	curl.SetCallback([&](size_t added)
@@ -36,4 +36,15 @@ TEST_CASE("NaCurl.Get", "[.]")
 
 	CHECK(lSize == 484044);
 	//CHECK(lSize == 1620);
+}
+
+TEST_CASE("NaCurl.UploadMultiPart")
+{
+	NaCurl curl;
+	
+	bool bRet = curl.UploadMultiPart(
+		L"http://localhost:30001/upload", 
+		L"files\\1616.png");
+
+	CHECK(bRet == true);
 }

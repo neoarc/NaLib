@@ -180,6 +180,75 @@ bool NaCurl::Get(NaString strUrl, char **outBuf, long &lSize)
 	return true;
 }
 
+bool NaCurl::UploadMultiPart(NaString strUrl, NaString strLocalFilePath)
+{
+	if (strLocalFilePath.GetLength() == 0)
+		return false;
+
+	NaDebugOut(L"URL: %ls\n", strUrl.wstr());
+
+	// Add some option to the easy handle
+	m_pCurlEasy->add<CURLOPT_URL>(strUrl.cstr());
+	m_pCurlEasy->add<CURLOPT_FOLLOWLOCATION>(1L);
+	m_pCurlEasy->add<CURLOPT_SSL_VERIFYPEER>(0);
+	
+	/* Fill in the file upload field. This makes libcurl load data from
+	the given file name when curl_easy_perform() is called. */
+	struct curl_httppost *formpost = NULL;
+	struct curl_httppost *lastptr = NULL;
+	//struct curl_slist *headerlist = NULL;
+	curl_formadd(&formpost,
+		&lastptr,
+		CURLFORM_COPYNAME, "file",
+		CURLFORM_FILE, strLocalFilePath.cstr(),
+		CURLFORM_END);
+
+	m_pCurlEasy->add<CURLOPT_HTTPPOST>(formpost);
+
+	try
+	{
+		// Execute the request.
+		ClearOutputStream();
+		m_pCurlEasy->perform();
+	}
+	catch (curl_easy_exception error)
+	{
+		// If you want to get the entire error stack we can do:
+		curlcpp_traceback errors = error.get_traceback();
+		// Otherwise we could print the stack like this:
+		error.print_traceback();
+
+		//////////////////////////////////////////////////////////////////////////
+		m_strLastError = L"";
+
+		auto pThis = this;
+		auto traceback = error.get_traceback();
+		std::for_each(traceback.begin(), traceback.end(),
+			[&pThis](const curl::curlcpp_traceback_object &value)
+		{
+			pThis->m_strLastError.AppendFormat("E: %s, F: %s\n",
+				value.first.c_str(), value.second.c_str()
+			);
+		});
+		//////////////////////////////////////////////////////////////////////////
+	}
+
+	// Let's print the stream content.
+	const std::string str = m_ostrOutput.str();
+	const char* cstr = str.c_str();
+
+	NaString strRet = cstr;
+	if (strRet.GetLength() > 80)
+		NaDebugOut(L"RET: %ls ...(skip)\n", strRet.Left(80).wstr());
+	else
+		NaDebugOut(L"RET: %ls\n", strRet.wstr());
+
+	curl_formfree(formpost);
+	//curl_slist_free_all(headerlist);
+
+	return true;
+}
+
 unsigned long NaCurl::GetLastError()
 {
 	return m_lLastError;
