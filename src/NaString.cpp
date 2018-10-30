@@ -541,7 +541,7 @@ int NaString::ConvertCharToWChar(const char* str, wchar_t** wstr)
 	*((*wstr) + nWChars - 1) = L'\0';
 #endif
 
-	return nWChars;
+	return nWChars - 1;
 }
 
 void NaString::Init()
