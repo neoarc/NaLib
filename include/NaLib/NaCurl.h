@@ -30,7 +30,7 @@ public:
 	NaString Post(NaString strUrl, NaString strBody = L"");
 	NaString Put(NaString strUrl, NaString strBody = L"");
 	bool Get(NaString strUrl, char **outBuf, long &lSize);
-	bool UploadMultiPart(NaString strUrl, NaString strLocalFilePath);
+	bool UploadMultiPart(NaString strUrl, NaString strLocalFilePath, NaString strBody = L"");
 
 	// Stream
 	ostringstream m_ostrOutput;

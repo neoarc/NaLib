@@ -180,7 +180,7 @@ bool NaCurl::Get(NaString strUrl, char **outBuf, long &lSize)
 	return true;
 }
 
-bool NaCurl::UploadMultiPart(NaString strUrl, NaString strLocalFilePath)
+bool NaCurl::UploadMultiPart(NaString strUrl, NaString strLocalFilePath, NaString strBody)
 {
 	if (strLocalFilePath.GetLength() == 0)
 		return false;
@@ -202,6 +202,13 @@ bool NaCurl::UploadMultiPart(NaString strUrl, NaString strLocalFilePath)
 		CURLFORM_COPYNAME, "file",
 		CURLFORM_FILE, strLocalFilePath.cstr(),
 		CURLFORM_END);
+
+	if (strBody.GetLength() > 0)
+	{
+		curl_formadd(&formpost, &lastptr, 
+			CURLFORM_COPYNAME, "text",
+			CURLFORM_COPYCONTENTS, strBody.cstr(), CURLFORM_END);
+	}
 
 	m_pCurlEasy->add<CURLOPT_HTTPPOST>(formpost);
 

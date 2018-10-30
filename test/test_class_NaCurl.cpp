@@ -44,7 +44,8 @@ TEST_CASE("NaCurl.UploadMultiPart")
 	
 	bool bRet = curl.UploadMultiPart(
 		L"http://localhost:30001/upload", 
-		L"files\\1616.png");
+		L"files\\1616.png",
+		L"{'who_am_i': 'iam_post_body'}");
 
 	CHECK(bRet == true);
 }
